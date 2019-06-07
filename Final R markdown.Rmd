@@ -1,8 +1,12 @@
 ---
-title: "Final R markdown"
+title: "A seasonal study of ecoroof runoff quality and quantity and the associated drivers on a commercial building in North Portland, Oregon"
 author: "Alex Vijay Bans"
 date: "June 11th, 2019"
-output: word_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -16,20 +20,87 @@ library(leaflet)
 library(mapview)
 library(sf)
 library(tidyr)
+we2flow<-read.csv("data/flow/we2 flow.csv")
+we3flow<-read.csv("data/flow/we3 flow.csv")
+icp<-read_excel("data/icpdata.xlsx")
+#Imports datasets
+we2flow$Time <- as.POSIXlt(we2flow$Inst.Time, format="%m/%d/%Y %H:%M %p")
+we3flow$Time<-as.POSIXct(we3flow$Inst.Time, format="%m/%d/%Y %H:%M %p")
+#this takes the "instrument time" and turns it into data time which I can seperate into data and time
+icp$Pb.ppb<-as.numeric(icp$Pb.ppb)
+#this turns my concentration values into numbers
+we2.Fe.ppb<-icp%>%select("roof","DateTime","Fe.ppb")%>%filter(roof == "WE2")
+we3.Fe.ppb<-icp%>%select("roof","DateTime","Fe.ppb")%>%filter(roof == "WE3")
+we2.Pb.ppb<-icp%>%select("roof","DateTime","Pb.ppb")%>%filter(roof == "WE2")
+we3.Pb.ppb<-icp%>%select("roof","DateTime","Pb.ppb")%>%filter(roof == "WE3")
+#This filters my icp results between roofs and chemicals
 ```
 
+Summary variable                           | Value
+-------------------------------------------|------------------------
+Conventional roof flow range (gpm)         |range(we3flow$Flow..gpm.)
+-------------------------------------------|------------------------
+mean Conventional roof flow (gpm)          |mean(we3flow$Flow..gpm.)
+-------------------------------------------|------------------------
+Ecoroof flow range (gpm)                   |range(we2flow$Flow..gpm.)
+-------------------------------------------|--------------------------
+mean ecoroof flow (gpm)                    |mean(we2flow$Flow.2..gpm.)
+-------------------------------------------|--------------------------
+**Introduction**  
+  Urban environments, with their vast swaths of impervious surfaces, increase the amount of nonpoint pollution that enter receiving freshwater bodies. This increase of pollution leads to concerning ecological management problems such as the urban stream syndrome. Green stormwater infrastructure (GSI), specifically ecoroofs, are increasingly being seen as a potential mitigator of these concerns in urban planning strategies.  
 
+  A common type of green roof are extensive green roofs which contain smaller plants which are able to tolerate the high amounts of sunlight and drought present on a roof (Getter and Rowe 2006). Extensive green roofs have thinner substrates and require less maintenance than a traditional intensive green roof with larger plants, like trees, and deeper substrates.  
 
-```{r cars}
-summary(cars)
+The substrate and vegetation filtrate water during rain events which can improve storm water run-off quality and reduce the run-off quantity (Van Seters et al. 2009; Speak et al. 2013). Green roofs are being recognized as important for urban sustainability and cities are beginning to mandate their incorporation into urban management plans. An example of this is the new Central City plan for 2035 recently enacted by the city of Portland. In it, is the requirement that all new buildings with a roof space of 20,000 sq. ft or larger need 60 percent green roof coverage, excluding buildings that use roof parking. (Central City plan 2035).  
+
+However, the literature suggests that ecoroofs might be sources of certain metals and nutrients, such as lead, copper, iron, total phosphorus and nitrogen.  The goal of our in-progress study is to investigate and observe if these concerns hold true by the collection and analysis of the annual metal and nutrient loading and dynamics of the run-off from an extensive ecoroof and the environmental variables that affect them.
+
+**Methods**  
+
+Portland State University has a unique agreement with the City of Portland and Walmart to do research upon a green roof located on the Delta Park Walmart in North Portland, Oregon (Figure 1). Of the entire 90,000 sq. ft roof, approximately 40,000 sq. ft of it is green roof, and 50,000 sq. ft of it is conventional roof. The green roof portion is split into 3 sections with varying substrate depths. The depths are 3 inches, a transitionary zone between 3 and 5 inches and 5 inches. There is a hydra rain gauge and a weather station connected to a datalogger on the roof as well.  
+
+```{r echo= FALSE}
+m <- leaflet() %>% addTiles() %>% addMarkers(lng=-122.59611111, lat=45.59555556, popup="Walmart Ecoroof")
+m  # Print the map
 ```
 
-## Including Plots
+The first 9 months will be spent collecting the runoff samples from both the conventional roof and the green roof from every possible storm. The runoff from the conventional roof, the 3-inch substrate depth portion of the green roof, and the 5-inch substrate depth portion of the green roof, flow into individual gutters. The run-off from the conventional roof and from the 3-inch substrate portion of the green roof are collected from two autosamplers which also have attached flow meters. The autosamplers collect samples which is triggered when a predetermined amount of flow is sensed by the attached flow meter.  
 
-You can also embed plots, for example:
+Total bulk dry and wet deposition will be collected as our background standard. Runoff samples and total bulk deposition samples will be collected, filtered and preserved within 48 hours of capturing and every 2 weeks respectively. Subsamples will be acid preserved (for metals) or frozen for later analysis (for nutrients).  
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+The samples will be analyzed for metals using a ICP machine and analyzed for nutrients (primarily phosphorus and nitrogen), with a Smart Chem apparatus. Total above and below biomass and cover will be sampled at the beginning, and end of each season, collected with a line transect method, dried and weighed. The weather station will be downloaded every month.  
+
+This report is looking at a subset of the flow data from both the conventional roof and ecoroof, as well as the ICP results for Fe and Pb from 9/10/2018 to 10/10/19.Runoff flow from the ecoroof and conventional roof as well as the results of the ICP analysis for Fe and Pb were analyzed in R studio using the readxl, dplyr, ggplot 2, leaflet, and mapview packages. 
+
+**Results**  
+
+
+```{r echo = FALSE}
+plot(type= "o",we3flow$Time, we3flow$Flow..gpm., main = "Conventional Roof Runoff Over Time",xlab = "Time", ylab = "Flow (gpm)")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r echo = FALSE}
+plot(type= "o",we2flow$Time,we2flow$Flow.2..gpm., main = "Ecoroof Runoff Over Time", xlab="Time", ylab= "Flow (gpm)")
+```
+
+```{r echo = FALSE}
+boxplot(we2flow$Flow.2..gpm., we3flow$Flow..gpm., names=c("Ecoroof", "Conventional Roof"), xlab="Roof Type", ylab="Flow (gpm)", main= "The Range of Discharge Between Roof Types")
+#These are boxplots comparing the ranges of flow, Fe and Pb concentrations between the two roofs
+```
+
+```{r echo = FALSE}
+boxplot(we2.Fe.ppb$Fe.ppb,we3.Fe.ppb$Fe.ppb, names=c("Ecoroof", "Conventional Roof"), xlab="Roof Type", ylab= "Concentration (ppb)", main="The Range of Concentrations of Fe")
+```
+
+```{r echo = FALSE}
+boxplot(we2.Pb.ppb$Pb.ppb, we3.Pb.ppb$Pb.ppb, names=c("Ecoroof", "Conventional Roof"), xlab="Roof Type", ylab= "Concentration (ppb)", main="The Range of Concentrations of Pb")
+```
+
+**Discussion**  
+For the months of September 2018 through October 2019 there were interesting observations. While the ecoroof might have a larger mean discharge, the range of discharge values are much higher in the conventional roof. The range of concentrations of Fe present in the conventional roof are higher than in the ecoroof while the reverse is true for Pb, albeit at extremely small concentrations (1.2 ppb).  
+
+This preliminary report does not account for metal loading as both roofs have differing levels of flow that can dilute the chemical concentrations. This report also doesn’t look at inputs so we cannot see if the roofs are sources of Fe or Pb. We do have the ability to factor in all of these variables as this project moves forward.  
+
+This report serves to be the prototype for my master’s project. I look forward to integrating the entire 10 month of data, and 20 other chemicals and metals to this analysis.  
+
+

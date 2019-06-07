@@ -44,5 +44,6 @@ boxplot(we2.Fe.ppb$Fe.ppb,we3.Fe.ppb$Fe.ppb, names=c("Ecoroof", "Conventional Ro
 boxplot(we2.Pb.ppb$Pb.ppb, we3.Pb.ppb$Pb.ppb, names=c("Ecoroof", "Conventional Roof"), xlab="Roof Type", ylab= "Concentration (ppb)", main="The Range of Concentrations of Pb between Roof Types" )
 boxplot(we2flow$Flow.2..gpm., we3flow$Flow..gpm., names=c("Ecoroof", "Conventional Roof"), xlab="Roof Type", ylab="Discharge (gpm)", main= "The Range of Discharge Between Roof Types")
 #These are boxplots comparing the ranges of flow, Fe and Pb concentrations between the two roofs
-
-
+mean(we3flow$Flow..gpm.)
+mean(we2flow$Flow.2..gpm.)
+range(we3flow$Flow..gpm.)
